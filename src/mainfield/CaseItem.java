@@ -3,6 +3,7 @@ package mainfield;
 import static java.awt.Color.BLACK;
 import java.awt.Graphics;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class CaseItem extends JPanel {
@@ -10,27 +11,24 @@ public class CaseItem extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected String _name = "New item";
-	protected boolean _isSelected = false;
-	protected boolean[] _individualport = {false, false, false, false};
+	private boolean _isSelected = false;
+	private boolean[] _individualport = {false, false, false, false};
+	protected JLabel _nameLabel = new JLabel();
 	
 	
 	@Override
     public void paintComponent(Graphics g) {
 		g.setColor(BLACK);
 		paintCirclePanel(g);
-		// paint all when selected
-		if(_isSelected == true)
-		{
+		if(_isSelected == true)		// paint all when selected
 			paintPorts(g);
-			return;
+		else						//paint individual when connecting
+		{
+			paintNorthport(g, _individualport[0]);
+			paintEastport(g, _individualport[1]);
+			paintSouthport(g, _individualport[2]);
+			paintWestport(g, _individualport[3]);
 		}
-		
-		//paint individual when connecting
-		paintNorthport(g, _individualport[0]);
-		paintEastport(g, _individualport[1]);
-		paintSouthport(g, _individualport[2]);
-		paintWestport(g, _individualport[3]);
     }
 	
 	protected void paintPorts(Graphics g)
@@ -40,15 +38,15 @@ public class CaseItem extends JPanel {
 		paintNorthport(g, !_individualport[2]);
 		paintNorthport(g, !_individualport[3]);*/
 		paintNorthport(g, true);
-		paintNorthport(g, true);
-		paintNorthport(g, true);
-		paintNorthport(g, true);
+		paintEastport(g, true);
+		paintSouthport(g, true);
+		paintWestport(g, true);
 	}
 	
-	protected int xcenter = 0;
-	protected int ycenter = 0;
-	protected int portlen = 6;
-	protected void paintNorthport(Graphics g, boolean dopaint)
+	private int xcenter = 0;
+	private int ycenter = 0;
+	private int portlen = 6;
+	private void paintNorthport(Graphics g, boolean dopaint)
 	{
 		if(dopaint == false)
 			return;
@@ -73,11 +71,6 @@ public class CaseItem extends JPanel {
 		g.fillRect(0, ycenter - portlen/2					, portlen, portlen);
 	}
 	
-	public void setName(String name)
-	{
-		_name = name;
-	}
-	
 	public void SelectSwitch()
 	{
 		if(_isSelected == true)
@@ -97,6 +90,47 @@ public class CaseItem extends JPanel {
 		_individualport[index] = true;
 	}
 	
+	protected void getCenter()
+	{
+		xcenter = this.getSize().width  / 2;
+		ycenter = this.getSize().height / 2;
+	}
+	
+	public int isPointOnPort(int point_x, int point_y)
+	{
+		Double dw = (double) this.getWidth();
+		Double dh = (double) this.getHeight();
+		Double slope1 = dw / dh;
+		Double slope2 = (-1)*slope1;
+		Double intercept1 = 0.0;
+		Double intercept2 = dh;
+		boolean aboveline1 = false;
+		boolean aboveline2 = false;
+		
+		//additional method for child class
+		if(isPointOnPort_moreCondition(point_x, point_y) == false)
+			return -1;
+		
+		if(point_y >= slope1 * point_x + intercept1)
+			aboveline1 = true;
+		if(point_y >= slope2 * point_x + intercept2)
+			aboveline2 = true;
+		if(aboveline1 == true && aboveline2 == false)
+			return 3;
+		if(aboveline1 == true && aboveline2 == true)
+			return 2;
+		if(aboveline1 == false && aboveline2 == true)
+			return 1;
+		if(aboveline1 == false && aboveline2 == false)
+			return 0;
+		return -1;
+	}
+	protected boolean isPointOnPort_moreCondition(int point_x, int point_y)
+	{
+		return true;		//override child class condition here
+	}
+	
+	
 	protected void paintCirclePanel(Graphics g)
 	{
 		//add function if is circle panel
@@ -107,23 +141,22 @@ public class CaseItem extends JPanel {
 		//child panel do show border
 	}
 	
-	public void isPressOnPort(int press_x, int press_y)
+	public void setName(String name)
 	{
-		//calculate which port should connect
+		_nameLabel.setText(name);
 	}
 	
 	public void initUI()
 	{
-		//add component here
+		//add component and getCenter() here
 	}
 	
 	CaseItem(int width, int height)
 	{
 		this.setSize(width, height);
+		//_nameLabel.setOpaque(true);
 		this.setLocation(Integer.MAX_VALUE, Integer.MAX_VALUE);			//I have no idea but this solve overlapping issue
 																		//interesting finding: original set a (50, 50), b (60, 60)
 																		//problem will resolve when x && y >= 60
-		xcenter = this.getSize().width  / 2;
-		ycenter = this.getSize().height / 2;
 	}
 }

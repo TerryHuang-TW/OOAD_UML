@@ -15,8 +15,19 @@ public class UseCase extends CaseItem {
 	static final int DefaultUsecaseWidth = 1 * 9 + 7 * 7 + 12;	//"New case"
 	static final int DefaultUsecaseHeigth = 1 * 9 + 7 * 7 + 12;
 	private GridBagConstraints _con = new GridBagConstraints();
-	private JLabel _lcase = new JLabel(_name = "New case");
 	
+	@Override
+	protected boolean isPointOnPort_moreCondition(int point_x, int point_y)
+	{
+		double dradius = (double) this.getWidth();
+		double dx = (double) Math.abs(this.getLocation().x + dradius / 2 - point_x);
+		double dy = (double) Math.abs(this.getLocation().y + dradius / 2 - point_y);
+		
+		if(dradius * dradius >= dx * dx + dy * dy)	// c^2 = a^2 + b^2
+			return true;
+		else
+			return false;
+	}
 	
 	@Override
 	protected void paintCirclePanel(Graphics g)
@@ -25,24 +36,14 @@ public class UseCase extends CaseItem {
 	}
 	
 	@Override
-	protected void showBorder(boolean doshow)
-	{
-		//child panel do show border
-	}
-	
-	@Override
-	public void isPressOnPort(int press_x, int press_y)
-	{
-		//calculate which port should connect
-	}
-	
-	@Override
 	public void initUI()
 	{
 		this.setLayout(new GridBagLayout());
 		_con.fill = GridBagConstraints.HORIZONTAL;
-		_lcase.setHorizontalAlignment(JLabel.CENTER);
-		this.add(_lcase, _con);
+		_nameLabel.setText("New case");
+		_nameLabel.setHorizontalAlignment(JLabel.CENTER);
+		this.add(_nameLabel, _con);
+		getCenter();
 	}
 	
 	UseCase() {

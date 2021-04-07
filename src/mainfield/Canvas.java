@@ -15,7 +15,7 @@ public class Canvas extends JLayeredPane implements MouseListener {
 	private static final long serialVersionUID = 1L;
 	private static final int CANVAS_BORDER_WIDTH = 1;
 	private ArrayList<CaseItem> _caselist = new ArrayList<CaseItem>();
-	private ArrayList<CaseItem> _selectedCases = new ArrayList<CaseItem>();
+	private ArrayList<CaseItem> _selectedlist = new ArrayList<CaseItem>();
 	private int _currentmode = 0;
 	private int _depth = 99;
 	
@@ -23,7 +23,69 @@ public class Canvas extends JLayeredPane implements MouseListener {
 	public void passCurrentMode(int currentmode)
 	{
 		_currentmode = currentmode;
-		System.out.println(_currentmode);
+	}
+	
+	public void clickInRange(ArrayList<CaseItem> clist, ArrayList<CaseItem> slist)
+	{
+		int largest_depth = Integer.MIN_VALUE;
+		CaseItem resultc = null;
+		for(int i = 0; i < clist.size(); i++)
+		{
+			CaseItem c = clist.get(i);
+			if(c.getLocation().x <= press_x && press_x <= c.getLocation().x + c.getWidth())
+			{
+				if(c.getLocation().y <= press_y && press_y <= c.getLocation().y + c.getHeight())
+				{
+					if(JLayeredPane.getLayer(c) > largest_depth)
+					{
+						largest_depth = JLayeredPane.getLayer(c);
+						resultc = c;
+					}
+				}
+			}
+		}
+		if(resultc != null)
+			slist.add(resultc);
+	}
+	
+	public void circleInRange(ArrayList<CaseItem> clist, ArrayList<CaseItem> slist)
+	{
+		for(int i = 0; i < clist.size(); i++)
+		{
+			CaseItem c = clist.get(i);
+			if(press_x <= c.getLocation().x && c.getLocation().x + c.getWidth() <= release_x)
+			{
+				if(press_y <= c.getLocation().y && c.getLocation().y + c.getHeight() <= release_y)
+					slist.add(c);
+			}
+		}
+	}
+	
+	public void changeSelectSwitch(ArrayList<CaseItem> slist)
+	{
+		if(slist.isEmpty())
+			return;
+		for(int i = 0; i < slist.size(); i++)
+			slist.get(i).SelectSwitch();
+		this.refreshScreen();
+	}
+	
+	public CaseItem getSelectItem()
+	{
+		if(_selectedlist.isEmpty())
+			return null;
+		return _selectedlist.get(0);
+	}
+	
+	public void refreshScreen()
+	{
+		this.revalidate();
+		this.repaint();
+	}
+	
+	public void pointInRange()
+	{
+		
 	}
 	
 	Canvas()
@@ -68,9 +130,17 @@ public class Canvas extends JLayeredPane implements MouseListener {
 		switch(_currentmode)
 		{
 		case 0:			//Select
-			
+			changeSelectSwitch(_selectedlist);		//undo select
+			_selectedlist = new ArrayList<CaseItem>();
+			if(isclick == true)
+				clickInRange(_caselist, _selectedlist);
+			else
+				circleInRange(_caselist, _selectedlist);
+			changeSelectSwitch(_selectedlist);		//do select
 			break;
 		case 1:			//Association
+			pointInRange(_caselist, _selectedlist, press_x, press_y);
+			pointInRange(_caselist, _selectedlist, release_x, release_y);
 			break;
 		case 2:			//Generalization
 			break;
@@ -99,7 +169,7 @@ public class Canvas extends JLayeredPane implements MouseListener {
 			this.add(newItem, _depth);
 			this.setLayer(newItem, this.getIndexOf(newItem));
 			_depth -= 1;
-			newItem.setLocation(press_x - xcenter, press_y - ycenter);			
+			newItem.setLocation(press_x - xcenter, press_y - ycenter);
 		}
 	}
 

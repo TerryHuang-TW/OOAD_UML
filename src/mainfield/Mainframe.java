@@ -1,8 +1,8 @@
 package mainfield;
 
-import static java.awt.Color.BLACK;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -10,17 +10,20 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
-public class Mainframe extends JFrame {
+public class Mainframe extends JFrame implements ActionListener {
 
 	/**
 	 * 
@@ -44,7 +47,8 @@ public class Mainframe extends JFrame {
 	private JPanel _enlist = new JPanel();
 	private JMenuBar _menubar = new JMenuBar();
 	private JMenu _filemenu = new JMenu("file"), _editmenu = new JMenu("edit");
-	private JMenuItem _groupitem = new JMenuItem("group"), _ungroupitem = new JMenuItem("ungroup");
+	private JMenuItem _groupitem = new JMenuItem("group"), _ungroupitem = new JMenuItem("ungroup"),
+			_nameitem = new JMenuItem("change name");
 	
 	
 	private void findButton(Object b)
@@ -66,6 +70,23 @@ public class Mainframe extends JFrame {
 			}
 		}
 	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {    
+		if(e.getSource().equals(_groupitem))
+			;    //please implement
+		if(e.getSource().equals(_ungroupitem))
+			;    //please implement
+		if(e.getSource().equals(_nameitem))
+		{
+			CaseItem c = _canvas.getSelectItem();
+			if(c != null)
+			{
+				NameDialog d = new NameDialog(this, "Change Name", true, c);
+				_canvas.refreshScreen();
+			}
+		}
+	}  
 	
 	Mainframe()
 	{
@@ -93,8 +114,12 @@ public class Mainframe extends JFrame {
 		// menu bar //
 		_editmenu.add(_groupitem);
 		_editmenu.add(_ungroupitem);
+		_editmenu.add(_nameitem);
 		_menubar.add(_filemenu);
 		_menubar.add(_editmenu);
+		_groupitem.addActionListener(this);
+		_ungroupitem.addActionListener(this);
+		_nameitem.addActionListener(this);
 		
 		// frame //
 		this.add(_enlist);

@@ -111,19 +111,25 @@ public class CaseItem extends JPanel {
 		if(isPointOnPort_moreCondition(point_x, point_y) == false)
 			return -1;
 		
+		//if not in panel
+		if(point_x < this.getLocation().x || this.getLocation().x + dw < point_x)
+			return -1;
+		if(point_y < this.getLocation().y || this.getLocation().y + dh < point_y)
+			return -1;
+		
 		if(point_y >= slope1 * point_x + intercept1)
 			aboveline1 = true;
 		if(point_y >= slope2 * point_x + intercept2)
 			aboveline2 = true;
 		if(aboveline1 == true && aboveline2 == false)
-			return 3;
+			return ConnectionLine.westPort;
 		if(aboveline1 == true && aboveline2 == true)
-			return 2;
+			return ConnectionLine.southPort;
 		if(aboveline1 == false && aboveline2 == true)
-			return 1;
+			return ConnectionLine.eastPort;
 		if(aboveline1 == false && aboveline2 == false)
-			return 0;
-		return -1;
+			return ConnectionLine.northPort;
+		return ConnectionLine.notaPort;
 	}
 	protected boolean isPointOnPort_moreCondition(int point_x, int point_y)
 	{

@@ -90,12 +90,6 @@ public class Mainframe extends JFrame implements ActionListener {
 			}
 			_canvas.getcompolist().modifyGroupLayer(newClist, true);
 			compositelist.add(0, newClist);		//stack
-			for(CaseItem[] list: compositelist)
-			{
-				for(CaseItem c: list)
-					System.out.print(c + " ");
-				System.out.println();
-			}
 		}
 		if(e.getSource().equals(_ungroupitem))
 		{

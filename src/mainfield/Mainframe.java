@@ -88,7 +88,7 @@ public class Mainframe extends JFrame implements ActionListener {
 				newClist[arrayindex] = c;
 				arrayindex += 1;
 			}
-			_canvas.modifyGroupLayer(newClist, true);
+			_canvas.getcompolist().modifyGroupLayer(newClist, true);
 			compositelist.add(0, newClist);		//stack
 			for(CaseItem[] list: compositelist)
 			{
@@ -109,8 +109,8 @@ public class Mainframe extends JFrame implements ActionListener {
 					return;
 			}
 			CaseItem member = selectedlist.get(0);
-			CaseItem[] ungrouplist = _canvas.getGroupList(member);
-			_canvas.modifyGroupLayer(ungrouplist, false);
+			CaseItem[] ungrouplist = _canvas.getcompolist().getGroupList(member);
+			_canvas.getcompolist().modifyGroupLayer(ungrouplist, false);
 			compositelist.remove(ungrouplist);
 		}
 		if(e.getSource().equals(_nameitem))

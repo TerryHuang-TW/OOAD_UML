@@ -18,8 +18,7 @@ public class Canvas extends JLayeredPane implements MouseListener {
 	private static final int CANVAS_BORDER_WIDTH = 1;
 	private ArrayList<CaseItem> _caselist = new ArrayList<CaseItem>();
 	private ArrayList<CaseItem> _selectedlist = new ArrayList<CaseItem>();
-	private ArrayList<CaseItem[]> _compositelist = new ArrayList<CaseItem[]>();
-	private Map<CaseItem, Integer> _compolayerMap = new HashMap<CaseItem, Integer>();
+	private CompositeList _compolist = new CompositeList();
 	private ArrayList<ConnectionLine> _linelist = new ArrayList<ConnectionLine>();
 	private int _currentmode = 0;
 	private int _depth = 99;
@@ -29,46 +28,6 @@ public class Canvas extends JLayeredPane implements MouseListener {
 	public void passCurrentMode(int currentmode)
 	{
 		_currentmode = currentmode;
-	}
-	
-	public CaseItem[] getGroupList(CaseItem member)
-	{
-		CaseItem[] glist = null;
-		int length = Integer.MIN_VALUE;
-		for(CaseItem[] c_array: _compositelist)
-		{
-			for(CaseItem c: c_array)
-			{
-				if(member == c && c_array.length > length)
-				{
-					glist = c_array;
-					length = glist.length;
-				}
-			}
-		}
-		System.out.println(glist);
-		return glist;
-	}
-	
-	public void modifyGroupLayer(CaseItem[] glist, boolean isadding)
-	{
-		for(CaseItem c: glist)
-		{
-			if(_compolayerMap.containsKey(c))
-			{
-				int layer = _compolayerMap.get(c);
-				if(isadding == true)
-					layer += 1;
-				else
-					layer -= 1;
-				_compolayerMap.put(c, layer);
-				if(layer == 0)
-					c.setGroupStatus(false);
-				System.out.print(_compolayerMap.get(c) + " ");
-			}
-			else
-				_compolayerMap.put(c, 1);
-		}
 	}
 	
 	public void clickInRange(ArrayList<CaseItem> clist, ArrayList<CaseItem> slist, int point_x, int point_y)
@@ -94,7 +53,7 @@ public class Canvas extends JLayeredPane implements MouseListener {
 		{
 			if(resultc.getGroupStatus() == true)
 			{
-				CaseItem[] grouplist = getGroupList(resultc);
+				CaseItem[] grouplist = _compolist.getGroupList(resultc);
 				for(CaseItem c: grouplist)
 					slist.add(c);
 			}
@@ -114,7 +73,7 @@ public class Canvas extends JLayeredPane implements MouseListener {
 				{
 					if(c.getGroupStatus() == true)
 					{
-						CaseItem[] grouplist = getGroupList(c);
+						CaseItem[] grouplist = _compolist.getGroupList(c);
 						for(CaseItem n: grouplist)
 						{
 							if(!slist.contains(n))
@@ -155,7 +114,12 @@ public class Canvas extends JLayeredPane implements MouseListener {
 	}
 	public ArrayList<CaseItem[]> getCompositeList()
 	{
-		return _compositelist;
+		return _compolist.getCompositeList();
+	}
+	
+	public CompositeList getcompolist()
+	{
+		return _compolist;
 	}
 	
 	public void refreshScreen()
@@ -218,7 +182,7 @@ public class Canvas extends JLayeredPane implements MouseListener {
 					CaseItem dragItem = _selectedlist.get(0);
 					if(dragItem.getGroupStatus() == true)
 					{
-						CaseItem[] glist = getGroupList(dragItem);
+						CaseItem[] glist = _compolist.getGroupList(dragItem);
 						for(CaseItem c: glist)
 							c.setLocation(c.getLocation().x + delta_x, c.getLocation().y + delta_y);
 					}

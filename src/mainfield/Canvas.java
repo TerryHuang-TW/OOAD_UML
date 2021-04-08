@@ -4,6 +4,8 @@ import static java.awt.Color.BLACK;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLayeredPane;
@@ -16,6 +18,8 @@ public class Canvas extends JLayeredPane implements MouseListener {
 	private static final int CANVAS_BORDER_WIDTH = 1;
 	private ArrayList<CaseItem> _caselist = new ArrayList<CaseItem>();
 	private ArrayList<CaseItem> _selectedlist = new ArrayList<CaseItem>();
+	private ArrayList<CaseItem[]> _compositelist = new ArrayList<CaseItem[]>();
+	private Map<CaseItem, Integer> _compolayerMap = new HashMap<CaseItem, Integer>();
 	private ArrayList<ConnectionLine> _linelist = new ArrayList<ConnectionLine>();
 	private int _currentmode = 0;
 	private int _depth = 99;
@@ -25,6 +29,46 @@ public class Canvas extends JLayeredPane implements MouseListener {
 	public void passCurrentMode(int currentmode)
 	{
 		_currentmode = currentmode;
+	}
+	
+	public CaseItem[] getGroupList(CaseItem member)
+	{
+		CaseItem[] glist = null;
+		int length = Integer.MIN_VALUE;
+		for(CaseItem[] c_array: _compositelist)
+		{
+			for(CaseItem c: c_array)
+			{
+				if(member == c && c_array.length > length)
+				{
+					glist = c_array;
+					length = glist.length;
+				}
+			}
+		}
+		System.out.println(glist);
+		return glist;
+	}
+	
+	public void modifyGroupLayer(CaseItem[] glist, boolean isadding)
+	{
+		for(CaseItem c: glist)
+		{
+			if(_compolayerMap.containsKey(c))
+			{
+				int layer = _compolayerMap.get(c);
+				if(isadding == true)
+					layer += 1;
+				else
+					layer -= 1;
+				_compolayerMap.put(c, layer);
+				if(layer == 0)
+					c.setGroupStatus(false);
+				System.out.print(_compolayerMap.get(c) + " ");
+			}
+			else
+				_compolayerMap.put(c, 1);
+		}
 	}
 	
 	public void clickInRange(ArrayList<CaseItem> clist, ArrayList<CaseItem> slist, int point_x, int point_y)
@@ -47,7 +91,16 @@ public class Canvas extends JLayeredPane implements MouseListener {
 			}
 		}
 		if(resultc != null)
-			slist.add(resultc);
+		{
+			if(resultc.getGroupStatus() == true)
+			{
+				CaseItem[] grouplist = getGroupList(resultc);
+				for(CaseItem c: grouplist)
+					slist.add(c);
+			}
+			else
+				slist.add(resultc);
+		}
 	}
 	
 	public void circleInRange(ArrayList<CaseItem> clist, ArrayList<CaseItem> slist)
@@ -58,7 +111,19 @@ public class Canvas extends JLayeredPane implements MouseListener {
 			if(press_x <= c.getLocation().x && c.getLocation().x + c.getWidth() <= release_x)
 			{
 				if(press_y <= c.getLocation().y && c.getLocation().y + c.getHeight() <= release_y)
-					slist.add(c);
+				{
+					if(c.getGroupStatus() == true)
+					{
+						CaseItem[] grouplist = getGroupList(c);
+						for(CaseItem n: grouplist)
+						{
+							if(!slist.contains(n))
+								slist.add(n);
+						}
+					}
+					else
+						slist.add(c);
+				}
 			}
 		}
 	}
@@ -82,6 +147,15 @@ public class Canvas extends JLayeredPane implements MouseListener {
 		if(_selectedlist.isEmpty())
 			return null;
 		return _selectedlist.get(0);
+	}
+	
+	public ArrayList<CaseItem> getSelectGroup()
+	{
+		return _selectedlist;
+	}
+	public ArrayList<CaseItem[]> getCompositeList()
+	{
+		return _compositelist;
 	}
 	
 	public void refreshScreen()
@@ -135,9 +209,30 @@ public class Canvas extends JLayeredPane implements MouseListener {
 			changeSelectSwitch(_selectedlist);		//undo select
 			_selectedlist = new ArrayList<CaseItem>();
 			if(isclick == true)
-				clickInRange(_caselist, _selectedlist, press_x, press_y);
+				clickInRange(_caselist, _selectedlist, press_x, press_y);	//do select item
 			else
-				circleInRange(_caselist, _selectedlist);
+			{
+				clickInRange(_caselist, _selectedlist, press_x, press_y);
+				if(!_selectedlist.isEmpty())		//do move item
+				{
+					CaseItem dragItem = _selectedlist.get(0);
+					if(dragItem.getGroupStatus() == true)
+					{
+						CaseItem[] glist = getGroupList(dragItem);
+						for(CaseItem c: glist)
+							c.setLocation(c.getLocation().x + delta_x, c.getLocation().y + delta_y);
+					}
+					else
+						dragItem.setLocation(dragItem.getLocation().x + delta_x, dragItem.getLocation().y + delta_y);
+					for(ConnectionLine l: _linelist)
+						l.resetline();
+					this.refreshScreen();
+					_selectedlist = new ArrayList<CaseItem>();
+					break;
+				}
+				else
+					circleInRange(_caselist, _selectedlist);		//do select group
+			}
 			changeSelectSwitch(_selectedlist);		//do select
 			break;
 		case 1:			//Association
@@ -152,21 +247,30 @@ public class Canvas extends JLayeredPane implements MouseListener {
 			}		
 			CaseItem fromCase = _selectedlist.get(0);
 			CaseItem toCase = _selectedlist.get(1);
-			int fromportnum = fromCase.isPointOnPort(press_x, press_y);
-			int toportnum = toCase.isPointOnPort(release_x, release_y);
-			if(fromportnum == ConnectionLine.notaPort || toportnum == ConnectionLine.notaPort)
-			{
-				_selectedlist = new ArrayList<CaseItem>();
-				break;
-			}
-			if(_currentmode == 1)
-				;
-			else if(_currentmode == 2)
-				;
-			else
-				;
-			
+			int fromport = fromCase.isPointOnPort(press_x - fromCase.getLocation().x, press_y - fromCase.getLocation().y);
+			int toport = toCase.isPointOnPort(release_x - toCase.getLocation().x, release_y - toCase.getLocation().y);
 			_selectedlist = new ArrayList<CaseItem>();
+			if(fromport == ConnectionLine.notaPort || toport == ConnectionLine.notaPort)
+				break;
+			if(fromCase.porthasUsed(fromport) == true || toCase.porthasUsed(toport) == true)
+				break;
+			
+			if(_currentmode == 1)
+				_linelist.add(new AssociationLine(fromCase, fromport, toCase, toport));
+			else if(_currentmode == 2)
+				_linelist.add(new GeneralizationLine(fromCase, fromport, toCase, toport));
+			else
+				_linelist.add(new CompositionLine(fromCase, fromport, toCase, toport));
+			int new_line_index = _linelist.size() - 1;
+			ConnectionLine newLine = _linelist.get(new_line_index);
+			
+			this.add(newLine, _depthline);
+			this.setLayer(newLine, _depthline);
+			newLine.setSize(this.getSize().width, this.getSize().height);
+			this.refreshScreen();
+			System.out.println("created");
+			System.out.println("data: " + fromport + " " + toport);
+			//_selectedlist = new ArrayList<CaseItem>();
 			break;
 		default:		//Class, Use case
 			if(isclick == false || _depth < 0)

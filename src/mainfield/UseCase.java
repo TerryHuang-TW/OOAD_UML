@@ -19,9 +19,9 @@ public class UseCase extends CaseItem {
 	@Override
 	protected boolean isPointOnPort_moreCondition(int point_x, int point_y)
 	{
-		double dradius = (double) this.getWidth();
-		double dx = (double) Math.abs(this.getLocation().x + dradius / 2 - point_x);
-		double dy = (double) Math.abs(this.getLocation().y + dradius / 2 - point_y);
+		double dradius = (double) this.getWidth() / 2;
+		double dx = (double) Math.abs(dradius - point_x);
+		double dy = (double) Math.abs(dradius - point_y);
 		
 		if(dradius * dradius >= dx * dx + dy * dy)	// c^2 = a^2 + b^2
 			return true;

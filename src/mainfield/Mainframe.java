@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -74,17 +75,51 @@ public class Mainframe extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {    
 		if(e.getSource().equals(_groupitem))
-			;    //please implement
+		{
+			ArrayList<CaseItem> selectedlist = _canvas.getSelectGroup();
+			ArrayList<CaseItem[]> compositelist = _canvas.getCompositeList();
+			CaseItem[] newClist = new CaseItem[selectedlist.size()];
+			int arrayindex = 0;
+			if(selectedlist.size() < 2)
+				return;
+			for(CaseItem c: selectedlist)
+			{
+				c.setGroupStatus(true);
+				newClist[arrayindex] = c;
+				arrayindex += 1;
+			}
+			_canvas.modifyGroupLayer(newClist, true);
+			compositelist.add(0, newClist);		//stack
+			for(CaseItem[] list: compositelist)
+			{
+				for(CaseItem c: list)
+					System.out.print(c + " ");
+				System.out.println();
+			}
+		}
 		if(e.getSource().equals(_ungroupitem))
-			;    //please implement
+		{
+			ArrayList<CaseItem> selectedlist = _canvas.getSelectGroup();
+			ArrayList<CaseItem[]> compositelist = _canvas.getCompositeList();
+			if(selectedlist.size() < 2)
+				return;
+			for(CaseItem c: selectedlist)
+			{
+				if(c.getGroupStatus() == false)
+					return;
+			}
+			CaseItem member = selectedlist.get(0);
+			CaseItem[] ungrouplist = _canvas.getGroupList(member);
+			_canvas.modifyGroupLayer(ungrouplist, false);
+			compositelist.remove(ungrouplist);
+		}
 		if(e.getSource().equals(_nameitem))
 		{
 			CaseItem c = _canvas.getSelectItem();
-			if(c != null)
-			{
-				NameDialog d = new NameDialog(this, "Change Name", true, c);
-				_canvas.refreshScreen();
-			}
+			if(c == null)
+				return;
+			NameDialog d = new NameDialog(this, "Change Name", true, c);
+			_canvas.refreshScreen();
 		}
 	}  
 	

@@ -38,9 +38,7 @@ public class ConnectionLine extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		paintEndPoint(g, _toport, portPoint[Toindex][0] + _toXcost, portPoint[Toindex][1] + _toYcost);
-		/*((Graphics2D) g).draw(d);
-		((Graphics2D) g).draw(a);
-		((Graphics2D) g).draw(t);*/
+		
 		Line2D lin = new Line2D.Float(portPoint[Fromindex][0], portPoint[Fromindex][1],
 				portPoint[Toindex][0] + _toXcost, portPoint[Toindex][1] + _toYcost);			//this is a line Float(x1,y1,x2,y2)
 		((Graphics2D) g).draw(lin);
@@ -114,7 +112,8 @@ public class ConnectionLine extends JPanel {
 	
 	public void initUI()
 	{
-		this.setPreferredSize(this.getMaximumSize());
+		this.setSize(Integer.MAX_VALUE, Integer.MAX_VALUE);
+		this.setOpaque(false);
 	}
 	
 	protected void paintEndPoint(Graphics g, int toport, int startX, int startY)
@@ -132,6 +131,8 @@ public class ConnectionLine extends JPanel {
 		_fromY = fromCase.getLocation().y;
 		_toX = toCase.getLocation().x;
 		_toY = toCase.getLocation().y;
+		fromCase.portisConnect(fromport);
+		toCase.portisConnect(toport);
 		definePoint();
 		initUI();
 	}

@@ -12,6 +12,7 @@ public class CaseItem extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	private boolean _isSelected = false;
+	private boolean _isgrouped = false;
 	private boolean[] _individualport = {false, false, false, false};
 	protected JLabel _nameLabel = new JLabel();
 	
@@ -41,6 +42,16 @@ public class CaseItem extends JPanel {
 		paintEastport(g, true);
 		paintSouthport(g, true);
 		paintWestport(g, true);
+	}
+	
+	public void portisConnect(int portnum)
+	{
+		_individualport[portnum] = true;
+	}
+	
+	public boolean porthasUsed(int portnum)
+	{
+		return _individualport[portnum];
 	}
 	
 	private int xcenter = 0;
@@ -100,7 +111,7 @@ public class CaseItem extends JPanel {
 	{
 		Double dw = (double) this.getWidth();
 		Double dh = (double) this.getHeight();
-		Double slope1 = dw / dh;
+		Double slope1 = dh / dw;
 		Double slope2 = (-1)*slope1;
 		Double intercept1 = 0.0;
 		Double intercept2 = dh;
@@ -109,12 +120,6 @@ public class CaseItem extends JPanel {
 		
 		//additional method for child class
 		if(isPointOnPort_moreCondition(point_x, point_y) == false)
-			return -1;
-		
-		//if not in panel
-		if(point_x < this.getLocation().x || this.getLocation().x + dw < point_x)
-			return -1;
-		if(point_y < this.getLocation().y || this.getLocation().y + dh < point_y)
 			return -1;
 		
 		if(point_y >= slope1 * point_x + intercept1)
@@ -145,6 +150,16 @@ public class CaseItem extends JPanel {
 	protected void showBorder(boolean doshow)
 	{
 		//child panel do show border
+	}
+	
+	public boolean getGroupStatus()
+	{
+		return _isgrouped;
+	}
+	
+	public void setGroupStatus(boolean b)
+	{
+		_isgrouped = b;
 	}
 	
 	public void setName(String name)

@@ -77,7 +77,7 @@ public class Mainframe extends JFrame implements ActionListener {
 		if(e.getSource().equals(_groupitem))
 		{
 			ArrayList<CaseItem> selectedlist = _canvas.getSelectGroup();
-			ArrayList<CaseItem[]> compositelist = _canvas.getCompositeList();
+			CompositeList compositelist = _canvas.getcompolist();
 			CaseItem[] newClist = new CaseItem[selectedlist.size()];
 			int arrayindex = 0;
 			if(selectedlist.size() < 2)
@@ -88,13 +88,13 @@ public class Mainframe extends JFrame implements ActionListener {
 				newClist[arrayindex] = c;
 				arrayindex += 1;
 			}
-			_canvas.getcompolist().modifyGroupLayer(newClist, true);
-			compositelist.add(0, newClist);		//stack
+			compositelist.modifyGroupLayer(newClist, true);
+			compositelist.getCompositeList().add(0, newClist);		//stack
 		}
 		if(e.getSource().equals(_ungroupitem))
 		{
 			ArrayList<CaseItem> selectedlist = _canvas.getSelectGroup();
-			ArrayList<CaseItem[]> compositelist = _canvas.getCompositeList();
+			CompositeList compositelist = _canvas.getcompolist();
 			if(selectedlist.size() < 2)
 				return;
 			for(CaseItem c: selectedlist)
@@ -103,9 +103,9 @@ public class Mainframe extends JFrame implements ActionListener {
 					return;
 			}
 			CaseItem member = selectedlist.get(0);
-			CaseItem[] ungrouplist = _canvas.getcompolist().getGroupList(member);
-			_canvas.getcompolist().modifyGroupLayer(ungrouplist, false);
-			compositelist.remove(ungrouplist);
+			CaseItem[] ungrouplist = compositelist.getGroupList(member);
+			compositelist.modifyGroupLayer(ungrouplist, false);
+			compositelist.getCompositeList().remove(ungrouplist);
 		}
 		if(e.getSource().equals(_nameitem))
 		{

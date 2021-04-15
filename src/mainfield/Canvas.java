@@ -64,12 +64,16 @@ public class Canvas extends JLayeredPane implements MouseListener {
 	
 	public void circleInRange(ArrayList<CaseItem> clist, ArrayList<CaseItem> slist)
 	{
+		int start_x = Math.min(press_x, release_x);
+		int start_y = Math.min(press_y, release_y);
+		int end_x = Math.max(press_x, release_x);
+		int end_y = Math.max(press_y, release_y);
 		for(int i = 0; i < clist.size(); i++)
 		{
 			CaseItem c = clist.get(i);
-			if(press_x <= c.getLocation().x && c.getLocation().x + c.getWidth() <= release_x)
+			if(start_x <= c.getLocation().x && c.getLocation().x + c.getWidth() <= end_x)
 			{
-				if(press_y <= c.getLocation().y && c.getLocation().y + c.getHeight() <= release_y)
+				if(start_y <= c.getLocation().y && c.getLocation().y + c.getHeight() <= end_y)
 				{
 					if(c.getGroupStatus() == true)
 					{
@@ -111,10 +115,6 @@ public class Canvas extends JLayeredPane implements MouseListener {
 	public ArrayList<CaseItem> getSelectGroup()
 	{
 		return _selectedlist;
-	}
-	public ArrayList<CaseItem[]> getCompositeList()
-	{
-		return _compolist.getCompositeList();
 	}
 	
 	public CompositeList getcompolist()

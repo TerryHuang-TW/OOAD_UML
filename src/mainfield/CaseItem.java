@@ -25,14 +25,14 @@ public class CaseItem extends JPanel {
 			paintPorts(g);
 		else						//paint individual when connecting
 		{
-			paintNorthport(g, _individualport[0]);
-			paintEastport(g, _individualport[1]);
-			paintSouthport(g, _individualport[2]);
-			paintWestport(g, _individualport[3]);
+			//paintNorthport(g, _individualport[0]);
+			//paintEastport(g, _individualport[1]);
+			//paintSouthport(g, _individualport[2]);
+			//paintWestport(g, _individualport[3]);
 		}
     }
 	
-	protected void paintPorts(Graphics g)
+	private void paintPorts(Graphics g)
 	{
 		/*paintNorthport(g, !_individualport[0]);
 		paintNorthport(g, !_individualport[1]);
@@ -63,19 +63,19 @@ public class CaseItem extends JPanel {
 			return;
 		g.fillRect(xcenter - portlen/2, 0					, portlen, portlen);
 	}
-	protected void paintEastport(Graphics g, boolean dopaint)
+	private void paintEastport(Graphics g, boolean dopaint)
 	{
 		if(dopaint == false)
 			return;
 		g.fillRect(xcenter*2 - portlen, ycenter - portlen/2	, portlen, portlen);
 	}
-	protected void paintSouthport(Graphics g, boolean dopaint)
+	private void paintSouthport(Graphics g, boolean dopaint)
 	{
 		if(dopaint == false)
 			return;
 		g.fillRect(xcenter - portlen/2, ycenter*2 - portlen	, portlen, portlen);
 	}
-	protected void paintWestport(Graphics g, boolean dopaint)
+	private void paintWestport(Graphics g, boolean dopaint)
 	{
 		if(dopaint == false)
 			return;
